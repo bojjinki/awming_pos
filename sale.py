@@ -45,9 +45,12 @@ def sale_transactions(sale_list = {}):
                     sale_tuple = sale_list[sale_barcode[0]]
                     count = sale_tuple[2] + item_count
                     sale_tuple = (item[0], item_name, count, price)
+                    sale_list[sale_barcode[0]] = sale_tuple
                 else:
-                    sale_tuple = (item[0], item_name, item_count, price)
-            sale_list[sale_barcode[0]] = sale_tuple
+                    if (item_count > 0):
+                        sale_tuple = (item[0], item_name, item_count, price)
+                        sale_list[sale_barcode[0]] = sale_tuple
+            
             sale_transactions(sale_list)
         elif (len(sale_lookup) < 1):
             print("Barcode not in database!\n")
@@ -80,7 +83,7 @@ def sale_commit(sale_list = {}):
     elif (usr_commit == 'n' or usr_commit == 'N'):
         sale_void(sale_list)
     else:
-        print("Press y/Y or n/N only. Try again.")
+        print("\nPress y/Y or n/N only. Try again.\n")
         sale_commit(sale_list)
 
 def sale_void(sale_list = {}):
@@ -102,7 +105,7 @@ def sale_void(sale_list = {}):
                 sale_list[usr_void] = tuple(sale_tuple)
             sale_commit(sale_list)
         else:
-            print("Barcode not yet scanned. Try again.")
+            print("\nBarcode not yet scanned. Try again.\n")
             sale_void(sale_list)
             
 def sale_update(sale_list = {}):
@@ -122,7 +125,7 @@ def sale_update(sale_list = {}):
     mycursor.executemany(sqlFormula_2, update_list)
     mydb.commit()
 
-    print(mycursor.rowcount, "Record(s) updated")
+    print(mycursor.rowcount, "\nRecord(s) updated\n")
 
 
 
