@@ -69,7 +69,7 @@ def sale_commit(sale_list = {}):
     print(tabulate([["Total Sales", total_sum]], tablefmt = "heavy_outline"))
 
     usr_commit = input("Commit transaction? y/n: ")
-    if (usr_commit == 'y'):
+    if (usr_commit == 'y' or usr_commit == 'Y'):
         for lists in sale_table:
             now = datetime.now()
             lists.append(now.date())
@@ -77,8 +77,11 @@ def sale_commit(sale_list = {}):
         sql = "INSERT INTO Sales (Barcode, Item_Name, Sale_Count, Price, Total_Price, Date, Time) VALUES (%s, %s, %s, %s, %s, %s, %s)"
         mycursor.executemany(sql,sale_table)
         sale_update(sale_list)
-    else:
+    elif (usr_commit == 'n' or usr_commit == 'N'):
         sale_void(sale_list)
+    else:
+        print("Press y/Y or n/N only. Try again.")
+        sale_commit(sale_list)
 
 def sale_void(sale_list = {}):
     usr_void = input("Scan barcode to void or press x to end transaction and go back to main menu: ")
