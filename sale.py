@@ -22,7 +22,7 @@ def usrInput_int(message):
             return item_count
 
 def sale_transactions(sale_list = {}):
-    sale_barcode = input("Scan a barcode or end sale transaction (press x): ")
+    sale_barcode = input("\nScan a barcode or end sale transaction (press x): ")
 
     if (sale_barcode == "x"):
         print("\nEnding sale transaction...\n")
