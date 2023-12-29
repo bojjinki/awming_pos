@@ -20,3 +20,6 @@ print(mycursor.rowcount, "record(s) affected")
 mycursor.execute("TRUNCATE TABLE Sales")
 print(mycursor.rowcount, "record(s) affected")
 
+mycursor.execute("TRUNCATE TABLE Incoming")
+print(mycursor.rowcount, "record(s) affected")
+
