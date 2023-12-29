@@ -1,5 +1,6 @@
 import mysql.connector
 import sale
+import incoming
 
 mydb = mysql.connector.connect(
     host="localhost",
@@ -24,23 +25,22 @@ def main_menu():
     if (selection == '0'):
         print("Quitting\n")
     elif (selection == '1'):
-        print("\nMaking a sale...\n")
+        print("\nMaking a sale...")
         sale.sale_transactions()
+        main_menu()
     elif (selection == '2'):
-        print("Recording an incoming transaction...\n")
+        print("Recording an incoming transaction...")
+        incoming.in_transactions()
+        main_menu()
     elif (selection == '3'):
-        print("Recording an outgoing transaction...\n")
+        print("Recording an outgoing transaction...")
     else:
         print("Incorrect selection...\n")
         main_menu()
 
 def main():
     print("Welcome to Aw-Ming's Pet Supplies!\n")
-    main_menu()
-
-
-
-    
+    main_menu()    
 
 if __name__ == "__main__":
     main()
