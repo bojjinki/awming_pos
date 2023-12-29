@@ -11,6 +11,16 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
+def usrInput_int(message):
+    while True:
+        try:
+            item_count = int(input(message))
+        except ValueError:
+            print("\nNumber of items must be an integer.\n")
+            continue
+        else:
+            return item_count
+
 def sale_transactions(sale_list = {}):
     sale_barcode = input("Scan a barcode or end sale transaction (press x): ")
 
@@ -26,16 +36,17 @@ def sale_transactions(sale_list = {}):
 
         if (len(sale_lookup) == 1):
             for item in sale_lookup:
+                item_count = usrInput_int("Number of items: ")
                 print(item[1], ".......... Php ", item[3], "\n")
                 item_name = item[1]
                 price = item[3]
             
                 if (sale_barcode[0] in sale_list):
                     sale_tuple = sale_list[sale_barcode[0]]
-                    count = sale_tuple[2] + 1
+                    count = sale_tuple[2] + item_count
                     sale_tuple = (item[0], item_name, count, price)
                 else:
-                    sale_tuple = (item[0], item_name, 1, price)
+                    sale_tuple = (item[0], item_name, item_count, price)
             sale_list[sale_barcode[0]] = sale_tuple
             sale_transactions(sale_list)
         elif (len(sale_lookup) < 1):
@@ -66,9 +77,31 @@ def sale_commit(sale_list = {}):
         sql = "INSERT INTO Sales (Barcode, Item_Name, Sale_Count, Price, Total_Price, Date, Time) VALUES (%s, %s, %s, %s, %s, %s, %s)"
         mycursor.executemany(sql,sale_table)
         sale_update(sale_list)
-    #else:
-    #    sale_void()
+    else:
+        sale_void(sale_list)
 
+def sale_void(sale_list = {}):
+    usr_void = input("Scan barcode to void or press x to end transaction and go back to main menu: ")
+
+    if (usr_void == "x" or usr_void == "X"):
+        print("Going back to main menu...")
+    else:
+        if (usr_void in sale_list.keys()):
+            sale_tuple = sale_list[usr_void]
+            print(sale_tuple[1], " - ", sale_tuple[2])
+            item_count = usrInput_int("Number of items to void: ")
+            new_count = sale_tuple[2] - item_count
+            if (new_count == 0):
+                sale_list.pop(usr_void, None)
+            else:
+                sale_tuple = list(sale_tuple)
+                sale_tuple[2] = new_count
+                sale_list[usr_void] = tuple(sale_tuple)
+            sale_commit(sale_list)
+        else:
+            print("Barcode not yet scanned. Try again.")
+            sale_void(sale_list)
+            
 def sale_update(sale_list = {}):
     update_list = []
     for key in sale_list.keys():
