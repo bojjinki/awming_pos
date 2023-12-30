@@ -1,25 +1,97 @@
 import tkinter as tk
+import gui_func as gui
 from tkinter import ttk
 
 class MainFrame(ttk.Frame):
-    def __init__(self, container):
+    def __init__(self, container, controller):
         super().__init__(container)
 
+        self.dash1()
+        self.dash2()
+        self.dash3()
+        self.buttons(controller)
+
+    def dash1(self):
+        dash1Frame = ttk.Frame(self, height=self.winfo_screenheight()/4, width=self.winfo_screenwidth(), relief='groove')
+        ttk.Label(dash1Frame, text="HELLO, NAME!", background='#0F52BA', foreground='white', style='dash1Label.TLabel').pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.style = ttk.Style(self)
+        self.style.configure('dash1Label.TLabel', font=('Helvetica', 100))
+        dash1Frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=0)
+        dash1Frame.pack_propagate(False)
+
+    def dash2(self):
+        dash2Frame = ttk.Frame(self, height=self.winfo_screenheight()/8, width=self.winfo_screenwidth(), relief='solid')
+        dash2Frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=0)
+        dash2Frame.pack_propagate(False)
     
-        dash1 = self.subFrame(self.winfo_screenheight()/4, self.winfo_screenwidth(), 'groove', tk.TOP, tk.X, 10, 0)
+    def dash3(self):
+        dash3Frame = ttk.Frame(self, height=self.winfo_screenheight()/2, width=self.winfo_screenwidth()/2, relief='solid')
+        dash3Frame.pack(side=tk.LEFT, fill=tk.NONE, padx=10, pady=20)
+        dash3Frame.pack_propagate(False)
+    
+    def buttons(self, controller):
+        buttons = ttk.Frame(self, height=self.winfo_screenheight()/2, width=self.winfo_screenwidth()/2, relief='solid')
+        buttons.grid_columnconfigure(0, weight=1)
+        buttons.grid_columnconfigure(1, weight=1)
+        buttons.grid_rowconfigure(0, weight=1)
+        buttons.grid_rowconfigure(1, weight=1)
+        buttons.grid_rowconfigure(2, weight=1)
 
-        dash2 = self.subFrame(self.winfo_screenheight()/8, self.winfo_screenwidth(), 'solid', tk.TOP, tk.X, 10, 0)
+        sale = ttk.Button(buttons, text="Make a Sale", command=lambda: controller.ShowFrame("Sale"))
+        sale.grid(column=0, row=0, sticky=tk.NSEW)
+        sale.grid_propagate(False)
 
-        dash3 = self.subFrame(self.winfo_screenheight()/2, self.winfo_screenwidth()/2, 'solid', tk.LEFT, tk.NONE, 10, 20)
+        lookup = ttk.Button(buttons, text="Lookup Price")
+        lookup.grid(column=1, row=0, sticky=tk.NSEW)
+        lookup.grid_propagate(False)
+
+        incoming = ttk.Button(buttons, text="Record Incoming")
+        incoming.grid(column=0, row=1, sticky=tk.NSEW)
+        incoming.grid_propagate(False)
+
+        void = ttk.Button(buttons, text="Void Transaction")
+        void.grid(column=1, row=1, sticky=tk.NSEW)
+        void.grid_propagate(False)
+
+        outgoing = ttk.Button(buttons, text="Record Outgoing")
+        outgoing.grid(column=0, row=2, sticky=tk.NSEW)
+        outgoing.grid_propagate(False)
+
+        calc = ttk.Button(buttons, text="Calculator")
+        calc.grid(column=1, row=2, sticky=tk.NSEW)
+        calc.grid_propagate(False)
         
-        buttons = self.subFrame(self.winfo_screenheight()/2, self.winfo_screenwidth()/2, 'solid', tk.LEFT, tk.NONE, 10, 20)
+        self.style = ttk.Style(self)
+        self.style.configure('TButton', font=('Helvetica', 40))
+
+        buttons.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=20)
+        buttons.pack_propagate(False)
+
+class SaleFrame(ttk.Frame):
+    def __init__(self, container, controller):
+        super().__init__(container)
+
+        self.entry1()
+
+    def entry1(self): 
+        barcodeFrame = ttk.Frame(self, height=self.winfo_screenheight()/8, width=self.winfo_screenwidth()/2)
+
+        ttk.Label(barcodeFrame, text="Barcode: ", style="barcodeLabel.TLabel").pack(side=tk.LEFT, padx = 30)
+        self.style = ttk.Style(self)
+        self.style.configure('barcodeLabel.TLabel', font=('Helvetica', 40))
+
+        barcode = tk.StringVar()
+        barcodeEntry = ttk.Entry(barcodeFrame, textvariable=barcode)
+        print(barcode.get())
+        barcodeEntry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=30, ipadx=40, ipady=10)
+
+        barcodeEntry.focus()
+        barcodeEntry.bind('<Return>', lambda x: gui.barcode_lookup(barcode.get()))
         
-        self.pack(padx=5, pady=5)
-
-    def subFrame(self, h, w, r, s, f, px, py):
-        subFrame = ttk.Frame(self, height=h, width=w, relief=r)
-        subFrame.pack(side=s, fill=f, padx=px, pady=py)
-
+    
+        barcodeFrame.pack(side=tk.TOP, pady=10)
+        barcodeFrame.pack_propagate(False)
+        
 class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -31,8 +103,30 @@ class MainWindow(tk.Tk):
         screen_height = str(self.winfo_screenheight())
         self.geometry(screen_width + "x" + screen_height + "+0+0")
         self.resizable(False, False)
+
+        container = tk.Frame(self)
+        container.pack()
+
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        self.frames = {}
+
+        main = MainFrame(container,self)
+        sale = SaleFrame(container,self)
+        self.frames["Main"]=main
+        self.frames["Sale"]=sale
+
+        main.grid(row=0,column=0,sticky="nsew")
+        sale.grid(row=0,column=0,sticky="nsew")
+
+        self.ShowFrame("Main")
+
+    def ShowFrame(self, index):
+        frame = self.frames[index]
+        frame.tkraise()
+        
     
 if __name__ == '__main__':
     app = MainWindow()
-    MainFrame(app)
     app.mainloop()
