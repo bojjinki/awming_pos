@@ -85,26 +85,27 @@ class SaleFrame(ttk.Frame):
         barcodeEntry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=30, ipadx=40, ipady=10)
 
         barcodeEntry.focus()
-        barcodeEntry.bind('<Return>', lambda x: self.printSalesList(barcode.get(), salesListFrame, salesLists, keep_labels))
+        barcodeEntry.bind('<Return>', lambda x: self.printSalesList(barcode.get(), salesListFrame, salesLists, keep_labels, totalSaleFrame))
         
         barcodeFrame.pack(side=tk.TOP, pady=10)
         barcodeFrame.pack_propagate(False)
 
-        salesListFrame = ttk.Frame(self, height=self.winfo_screenheight()/2, width=self.winfo_screenwidth())
+        salesListFrame = ttk.Frame(self, height=self.winfo_screenheight()/2, width=1700, relief='solid')
 
-        salesListFrame.grid_columnconfigure(0, weight=1)
-        salesListFrame.grid_columnconfigure(1, weight=1)
+        salesListFrame.grid_columnconfigure(0, weight=2)
+        salesListFrame.grid_columnconfigure(1, weight=2)
         salesListFrame.grid_columnconfigure(2, weight=1)
+        
 
-        item_name = ttk.Label(salesListFrame, text = "Item Name", width=640, style='salesList.TLabel')
+        item_name = ttk.Label(salesListFrame, text = "Item Name", width=600, style='salesList.TLabel')
         item_name.grid(column=0, row=0, sticky=tk.NSEW, padx=10, pady=10)
         item_name.grid_propagate(0)
 
-        item_num = ttk.Label(salesListFrame, text = "Number of Items", width=640, style='salesList.TLabel')
+        item_num = ttk.Label(salesListFrame, text = "Number of Items", width=600, style='salesList.TLabel')
         item_num.grid(column=1, row=0, sticky=tk.NSEW, padx=10, pady=10)
         item_num.grid_propagate(0)
 
-        item_price = ttk.Label(salesListFrame, text = "Price", width=640, style='salesList.TLabel')
+        item_price = ttk.Label(salesListFrame, text = "Price", width=300, style='salesList.TLabel')
         item_price.grid(column=2, row=0, sticky=tk.NSEW, padx=10, pady=10)
         item_price.grid_propagate(0)
 
@@ -112,10 +113,33 @@ class SaleFrame(ttk.Frame):
 
         self.style.configure('salesList.TLabel', font=('Helvetica', 25))
 
-        salesListFrame.pack(side=tk.TOP, padx = 10, pady=10, fill=tk.BOTH)
+        salesListFrame.pack(side=tk.TOP, padx = 10, pady=10, anchor=tk.W)
         salesListFrame.pack_propagate(0)
 
-    def printSalesList(self, barcode, frame, salesLists, keep_labels):
+        totalSaleFrame = ttk.Frame(self, height = 50, width = 1700, relief='solid')
+
+        totalSaleFrame.grid_columnconfigure(0, weight=2)
+        totalSaleFrame.grid_columnconfigure(1, weight=2)
+        totalSaleFrame.grid_columnconfigure(2, weight=1)
+        totalSaleFrame.grid_propagate(0)
+        
+        total = ttk.Label(totalSaleFrame, width=680, text="Total", style='salesList.TLabel')
+        total.grid(column=0, row=0, sticky=tk.NSEW, padx=10, pady=10)
+
+        
+        totalSaleFrame.pack(side=tk.LEFT, padx = 10, pady=10, anchor=tk.SW)
+        totalSaleFrame.pack_propagate(0)
+
+        checkoutFrame = ttk.Frame(self, height=50, width=300, relief='solid')
+
+        checkout = ttk.Button(checkoutFrame, width=300, text="CHECKOUT", style='checkout.TButton', command=lambda: self.showConfirmFrame())
+        checkout.pack(padx=10, pady=10)
+        self.style.configure('checkout.TButton', font=('Helvetica', 15))
+
+        checkoutFrame.pack(side=tk.RIGHT, padx = 10, pady=10, anchor=tk.SE)
+        checkoutFrame.pack_propagate(0)
+
+    def printSalesList(self, barcode, frame, salesLists, keep_labels, totalFrame):
         
         for child in frame.winfo_children():
             if (child not in keep_labels):
@@ -126,17 +150,36 @@ class SaleFrame(ttk.Frame):
         
         row_count = 1
 
+        item_count = 0
+        total_price = 0
+
         for keys in salesLists.keys():
             frame.grid_rowconfigure(row_count, weight=1)
             row_count += 1
             
             tuple = salesLists[keys]
-            ttk.Label(frame, text = tuple[0], width=640, style='salesList.TLabel').grid(column=0, row=row_count, sticky=tk.NSEW, padx=10, pady=10)
-            ttk.Label(frame, text = tuple[1], width=640, style='salesList.TLabel').grid(column=1, row=row_count, sticky=tk.NSEW, padx=10, pady=10)
-            ttk.Label(frame, text = tuple[2], width=640, style='salesList.TLabel').grid(column=2, row=row_count, sticky=tk.NSEW, padx=10, pady=10)
+            ttk.Label(frame, text = tuple[0], width=680, style='salesList.TLabel').grid(column=0, row=row_count, sticky=tk.NSEW, padx=10, pady=10)
+            ttk.Label(frame, text = tuple[1], width=680, style='salesList.TLabel').grid(column=1, row=row_count, sticky=tk.NSEW, padx=10, pady=10)
+            ttk.Label(frame, text = tuple[2], width=340, style='salesList.TLabel').grid(column=2, row=row_count, sticky=tk.NSEW, padx=10, pady=10)
 
-        
-        
+            item_count = item_count + tuple[1]
+            total_price = total_price + tuple[2]
+
+            ttk.Label(totalFrame, width=680, text = item_count, style='salesList.TLabel').grid(column=1, row=0, sticky=tk.NSEW, padx=10, pady=10)
+            ttk.Label(totalFrame, width=340, text = total_price, style='salesList.TLabel').grid(column=2, row=0, sticky=tk.NSEW, padx=10, pady=10)
+    
+    def showConfirmFrame(self):
+        app = confirmFrame()
+        app.mainloop()
+
+class confirmFrame(tk.Tk):
+    def __init__(self):
+        super().__init__()
+
+        self.title("Confirm?")
+        self.geometry('200x150+400+300') 
+        self.resizable(False, False)
+               
 class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -159,6 +202,7 @@ class MainWindow(tk.Tk):
 
         main = MainFrame(container,self)
         sale = SaleFrame(container,self)
+
         self.frames["Main"]=main
         self.frames["Sale"]=sale
 
